@@ -27,8 +27,8 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
    */
   public TraceAnalyzer(File file, string sort, int max) {
     this.file = file;
-    this.sort = sort;
-    this.max = max;
+    //this.sort = sort;
+    //this.max = max;
     
     this.stack = new ArrayList<FunctionCall>();
     this.functions = new HashMap<string, FunctionReport>();
@@ -76,6 +76,9 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
     return sortable_list;
   }
   
+  /**
+   * Create a comparison function.
+   */
   protected CompareDataFunc createComparator(string sort) {
     CompareDataFunc comparator;
     

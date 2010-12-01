@@ -8,12 +8,14 @@ public class XdebugTools.TracefileAnalyzer : GLib.Object {
   public static bool verbose = false;
   public static int max_lines = 0;
   public static string sort_col = "calls";
+  public static bool csv = false;
   
   // Options used by main.
   const OptionEntry entries [] = {
-    { "verbose", 'v', 0, OptionArg.NONE, out verbose, "Turn on verbose output.", null },
+    { "csv", 'c', 0, OptionArg.NONE, out csv, "Print results in CSV.", null },
     { "max-lines", 'n', 0, OptionArg.INT, out max_lines, "Set the max number (N) of lines to print.", "N"},
     { "sort", 's', 0, OptionArg.STRING, out sort_col, "Name of the column to sort on.", "calls | time_own | memory_own | time_inclusive | memory_inclusive"},
+    { "verbose", 'v', 0, OptionArg.NONE, out verbose, "Turn on verbose output.", null },
     { null }
   };
   
@@ -47,8 +49,12 @@ public class XdebugTools.TracefileAnalyzer : GLib.Object {
       return 1;
     }
     
+    // Do a little scanning of the input params.
+    string sort = sort_col == null ? "calls" : sort_col;
+    int max = max_lines;
+    
     // Create a new tracer.
-    var tracer = new TraceAnalyzer(f, TracefileAnalyzer.sort_col, TracefileAnalyzer.max_lines);
+    var tracer = new TraceAnalyzer(f, sort, max);
     if (TracefileAnalyzer.verbose) {
       tracer.verbose = true;
     }
@@ -60,10 +66,15 @@ public class XdebugTools.TracefileAnalyzer : GLib.Object {
       return 1;
     }
     
-    var functions = tracer.get_functions(TracefileAnalyzer.sort_col);
+    var functions = tracer.get_functions(sort);
     var report = new TraceAnalyzerReport(functions);
     
-    report.write_report(TracefileAnalyzer.max_lines);
+    if (csv) {
+      report.write_csv_report(",");
+    } 
+    else {
+      report.write_report(max);
+    }
     
     return 0;
   }

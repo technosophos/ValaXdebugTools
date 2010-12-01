@@ -14,8 +14,32 @@ Func                                                                           C
     this.functions = functions;
   }
   
+  public void write_csv_report(string sep = ",", bool print_header = true) {
+    if (print_header) {
+      stdout.printf("function,calls,time_inclusive,memory_inclusive,time_own,memory_own");
+    }
+    
+    
+    foreach (var report in this.functions) {
+      string buffer = string.join(
+        sep,
+        "'%s'".printf(report.name),
+        report.calls.to_string(),
+        report.time_inclusive.to_string(),
+        report.memory_inclusive.to_string(),
+        report.time_own.to_string(),
+        report.memory_own.to_string()
+      );
+      
+      stdout.printf("%s\n",buffer);
+    }
+  }
+  
   public void write_report(int max_lines) {
     stdout.printf(this.header);
+    
+    // 0 means unlimited.
+    if (max_lines == 0) max_lines = this.functions.size;
     
     int lines = 0;
     foreach (var report in this.functions) {
