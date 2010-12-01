@@ -42,30 +42,5 @@ Func                                                                           C
     this.format = format;
     this.header = header;
   }
-  
-  public string format_message(FunctionReport report, int max_spacer_length) {
-    
-    string spacer = string.nfill(max_spacer_length - report.name.length, ' ');
-    
-    stdout.printf(
-      this.format,
-      report.name,
-      spacer,
-      report.time_inclusive,
-      report.memory_inclusive,
-      report.time_own,
-      report.memory_own
-      );
-    
-    string name = report.name;
-    int calls = report.calls;
-    int time_inclusive = report.time_inclusive;
-    int time_own = report.time_own;
-    int memory_inclusive = report.memory_inclusive;
-    int memory_own = report.memory_own;
-    
-    //string msg = @this.format;
-    string msg = @"$name$spacer$calls\t$time_inclusive\t\t$memory_inclusive\t\t$time_own\t\t$memory_own\n";
-    return msg;
-  }
+
 }

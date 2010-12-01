@@ -15,7 +15,7 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
   protected bool _verbose = false;
   
   /**
-   * 
+   * Set the verbose flag.
    */
   public bool verbose {
     get { return this._verbose; }
