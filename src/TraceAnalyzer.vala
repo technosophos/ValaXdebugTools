@@ -67,7 +67,68 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
       function.time_own = function.time_inclusive - function.time_children;
       sortable_list.add(function);
     }
+    
+    // Sort the list if a sorter is set.
+    CompareDataFunc comparator = this.createComparator(sort);
+    
+    sortable_list.sort_with_data(comparator);
+        
     return sortable_list;
+  }
+  
+  protected CompareDataFunc createComparator(string sort) {
+    CompareDataFunc comparator;
+    
+    if (this.verbose) stdout.printf("Sorting with %s\n", sort);
+    
+    // This is here because there is currently an error in Vala.
+    // Closures do not correctly handle external variables on OS X.
+    switch (sort) {
+      case "time_own":
+        comparator = (raw_a, raw_b) => {
+          FunctionReport a = (FunctionReport)raw_a;
+          FunctionReport b = (FunctionReport)raw_b;
+          if (a.time_own < b.time_own) return 1;
+          return b.time_own < a.time_own ? -1 : 0;
+        };
+        break;
+      case "time_inclusive":
+        comparator = (raw_a, raw_b) => {
+          FunctionReport a = (FunctionReport)raw_a;
+          FunctionReport b = (FunctionReport)raw_b;
+          if (a.time_inclusive < b.time_inclusive) return 1;
+          return b.time_inclusive < a.time_inclusive ? -1 : 0;
+        };
+        break;
+      case "memory_own":
+        comparator = (raw_a, raw_b) => {
+          FunctionReport a = (FunctionReport)raw_a;
+          FunctionReport b = (FunctionReport)raw_b;
+          if (a.memory_own < b.memory_own) return 1;
+          return b.memory_own < a.memory_own ? -1 : 0;
+        };
+        break;
+      case "memory_inclusive":
+        comparator = (raw_a, raw_b) => {
+          FunctionReport a = (FunctionReport)raw_a;
+          FunctionReport b = (FunctionReport)raw_b;
+          if (a.memory_inclusive < b.memory_inclusive) return 1;
+          return b.memory_inclusive < a.memory_inclusive ? -1 : 0;
+        };
+        break;
+    
+      case "calls":
+      default:
+        comparator = (raw_a, raw_b) => {
+          FunctionReport a = (FunctionReport)raw_a;
+          FunctionReport b = (FunctionReport)raw_b;
+          if (a.calls < b.calls) return 1;
+          return b.calls < a.calls ? -1 : 0;
+        };
+        break;
+    }
+
+    return comparator;
   }
   
   protected void parse_line(string line) {
