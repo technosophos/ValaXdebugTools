@@ -16,7 +16,7 @@ Func                                                                           C
   
   public void write_csv_report(string sep = ",", bool print_header = true) {
     if (print_header) {
-      stdout.printf("function,calls,time_inclusive,memory_inclusive,time_own,memory_own");
+      stdout.printf("function,calls,time_inclusive,memory_inclusive,time_own,memory_own\n");
     }
     
     

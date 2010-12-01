@@ -9,10 +9,14 @@ public class XdebugTools.TracefileAnalyzer : GLib.Object {
   public static int max_lines = 0;
   public static string sort_col = "calls";
   public static bool csv = false;
+  public static string csv_separator;
+  public static bool csv_no_header = false;
   
   // Options used by main.
   const OptionEntry entries [] = {
-    { "csv", 'c', 0, OptionArg.NONE, out csv, "Print results in CSV.", null },
+    { "csv", 'c', 0, OptionArg.NONE, out csv, "Print results in CSV. CSV mode will ingnore max-lines.", null },
+    { "csv-no-header", 0, 0, OptionArg.NONE, out csv_no_header, "Suppress the CSV header.", null },
+    { "csv-separator", 0, 0, OptionArg.STRING, out csv_separator, "Use this string as a separator.", "','" },
     { "max-lines", 'n', 0, OptionArg.INT, out max_lines, "Set the max number (N) of lines to print.", "N"},
     { "sort", 's', 0, OptionArg.STRING, out sort_col, "Name of the column to sort on.", "calls | time_own | memory_own | time_inclusive | memory_inclusive"},
     { "verbose", 'v', 0, OptionArg.NONE, out verbose, "Turn on verbose output.", null },
@@ -70,7 +74,8 @@ public class XdebugTools.TracefileAnalyzer : GLib.Object {
     var report = new TraceAnalyzerReport(functions);
     
     if (csv) {
-      report.write_csv_report(",");
+      string sep = (csv_separator == null) ? "," : csv_separator;
+      report.write_csv_report(sep, !csv_no_header);
     } 
     else {
       report.write_report(max);
