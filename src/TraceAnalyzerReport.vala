@@ -5,7 +5,7 @@ public class XdebugTools.TraceAnalyzerReport : GLib.Object {
   protected ArrayList<XdebugTools.FunctionReport> functions;
   protected string format = "%s%s%8d  %0.4f  %16d  %0.4f  %16d\n";
   protected string header = """
-                                                                               Inclusive:                     Own:
+                                                                                            Inclusive:                     Own:
 Func                                                                           Calls        Time (i)        Mem (i)        Time (o)        Mem (o)
 ==================================================================================================================================================
 """;

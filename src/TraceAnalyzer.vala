@@ -45,7 +45,7 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
     }
     
     // Add the wrapper.
-    var stack_item = new FunctionCall("<main>", 0, 0, 0, 0);
+    var stack_item = new FunctionCall("<start>", 0, 0, 0, 0);
     this.stack.add(stack_item);
     
     var input = new DataInputStream(this.file.read());
@@ -57,12 +57,19 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
   /**
    * Get the results of a parsing run.
    */
-  public ArrayList<FunctionReport> get_functions(string sort) {
+  public ArrayList<FunctionReport> get_functions(string sort, bool suppress_internal = false) {
     
     var sortable_list = new ArrayList<FunctionReport>();
     // Compute time and memory usage.
     foreach (var entry in this.functions.entries) {
       var function = entry.value;
+            
+      // Skip internal functions.
+      if (suppress_internal && function.is_internal) {
+        if (this.verbose) stdout.printf("Hiding %s", function.name);
+        continue;
+      }
+
       function.memory_own = function.memory_inclusive - function.memory_children;
       function.time_own = function.time_inclusive - function.time_children;
       sortable_list.add(function);
@@ -142,8 +149,22 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
       return;
     }
     
+    // FIELD DEFINITIONS:
+    // 0: depth
+    // 1: function number
+    // 2: type: 0 = entry, 1 = exit
+    // 3: elapsed time
+    // 4: total memory usage to this point
+    //
+    // The following fields are only present when type = 0
+    // 5: function name
+    // 6: function type: 0 = internal, 1 = user
+    // 7: seems to always be empty
+    // 8: include filename
+    // 9: line number of definition
+    
     int depth = parts[0].to_int();
-    string func_nr = parts[1];
+    //string func_nr = parts[1];
     double time = parts[3].to_double();
     int memory = parts[4].to_int();
     
@@ -152,8 +173,18 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
     if (parts[2] == "0") {
       string func_name = parts[5];
       string int_func = parts[6];
+      //string include_string = parts[7];
+      string filename = parts[8];
+      int line_number = parts[9].to_int();
       
       var stack_item = new FunctionCall(func_name, time, memory, 0, 0);
+      
+      if (int_func == "0") {
+        //stdout.printf("Function %s is internal.\n", func_name);
+        stack_item.is_internal = true;
+      }
+      
+      stdout.printf("File: %s (%s), line %d\n", filename, include_string, line_number);
       
       //
       if (this.verbose) {
@@ -185,6 +216,7 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
       parent_item.nested_memory += dmem;
       
       var new_stack_item = new FunctionCall(stack_item.name, dtime, dmem, stack_item.nested_time, stack_item.nested_memory);
+      new_stack_item.is_internal = stack_item.is_internal;
       
       this.add_to_function(new_stack_item, depth);
     }
@@ -206,6 +238,8 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
     
     // Add data.
     if (!this.function_is_in_stack(func.name, depth)) {
+      report.is_internal = func.is_internal;
+      
       report.time_inclusive += func.time;
       report.time_children += func.nested_time;
       
@@ -215,14 +249,12 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
   }
   
   protected bool function_is_in_stack(string func_name, int depth) {
+    int i;
+    FunctionCall stack_item;
     
-    // XXX: Might need to slice stack.
-    int count = 0;
-    //int stack_size = depth; //this.stack.size;
-    foreach (var stack_item in this.stack.slice(0, depth)) {
-      if (/*++count < stack_size && */stack_item.name == func_name) {
-        return true;
-      }
+    for (i = 0; i < depth; ++i) {
+      stack_item = this.stack.get(i);
+      if (stack_item.name == func_name) return true;
     }
     return false;
   }
@@ -233,6 +265,8 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
  */
 public class XdebugTools.FunctionCall : GLib.Object {
   public string name;
+  
+  public bool is_internal = false;
   
   public double time;
   public double nested_time;
@@ -253,6 +287,9 @@ public class XdebugTools.FunctionCall : GLib.Object {
  * Class describing how many times a function was run.
  */
 public class XdebugTools.FunctionReport : GLib.Object {
+  
+  public bool is_internal = false;
+  
   public int calls = 0;
   
   public double time_inclusive = 0;

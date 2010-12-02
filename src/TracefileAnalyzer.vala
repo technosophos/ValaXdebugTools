@@ -11,6 +11,7 @@ public class XdebugTools.TracefileAnalyzer : GLib.Object {
   public static bool csv = false;
   public static string csv_separator;
   public static bool csv_no_header = false;
+  public static bool no_internals = false;
   
   // Options used by main.
   const OptionEntry entries [] = {
@@ -18,6 +19,7 @@ public class XdebugTools.TracefileAnalyzer : GLib.Object {
     { "csv-no-header", 0, 0, OptionArg.NONE, out csv_no_header, "Suppress the CSV header.", null },
     { "csv-separator", 0, 0, OptionArg.STRING, out csv_separator, "Use this string as a separator.", "','" },
     { "max-lines", 'n', 0, OptionArg.INT, out max_lines, "Set the max number (N) of lines to print.", "N"},
+    { "no-internals", 0, 0, OptionArg.NONE, out no_internals, "Do not display stats for internal functions. Only user-defined functions will be shown.", null},
     { "sort", 's', 0, OptionArg.STRING, out sort_col, "Name of the column to sort on.", "calls | time_own | memory_own | time_inclusive | memory_inclusive"},
     { "verbose", 'v', 0, OptionArg.NONE, out verbose, "Turn on verbose output.", null },
     { null }
@@ -62,6 +64,10 @@ public class XdebugTools.TracefileAnalyzer : GLib.Object {
     if (TracefileAnalyzer.verbose) {
       tracer.verbose = true;
     }
+    if (no_internals) {
+      stdout.printf("No internals");
+      //tracer.suppress_internals = true;
+    }
     
     try {
       tracer.parse_file();
@@ -70,7 +76,7 @@ public class XdebugTools.TracefileAnalyzer : GLib.Object {
       return 1;
     }
     
-    var functions = tracer.get_functions(sort);
+    var functions = tracer.get_functions(sort, no_internals);
     var report = new TraceAnalyzerReport(functions);
     
     if (csv) {
