@@ -144,8 +144,9 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
     
     int depth = parts[0].to_int();
     string func_nr = parts[1];
-    int time = parts[3].to_int();
+    double time = parts[3].to_double();
     int memory = parts[4].to_int();
+    
     
     // Entering function
     if (parts[2] == "0") {
@@ -154,7 +155,11 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
       
       var stack_item = new FunctionCall(func_name, time, memory, 0, 0);
       
-      //stdout.printf("> %d %s\n", depth, func_name);
+      //
+      if (this.verbose) {
+        stdout.printf("> %d %s (%0.8f, %d)\n", depth, func_name, time, memory);
+      }
+      
       
       if (this.stack.size >= depth + 1) {
         this.stack.set(depth, stack_item);
@@ -172,10 +177,16 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
       var stack_item = this.stack.get(depth);
       var parent_item = this.stack.get(depth -1);
       
-      parent_item.nested_time += (time - stack_item.time);
-      parent_item.nested_memory += (memory - stack_item.memory);
+      // Adjust time and memory.
+      var dtime = time - stack_item.time;
+      var dmem = memory - stack_item.memory;
       
-      this.add_to_function(stack_item);
+      parent_item.nested_time += dtime;
+      parent_item.nested_memory += dmem;
+      
+      var new_stack_item = new FunctionCall(stack_item.name, dtime, dmem, stack_item.nested_time, stack_item.nested_memory);
+      
+      this.add_to_function(new_stack_item);
     }
   }
   
@@ -203,8 +214,6 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
     }
   }
   
-
-  
   protected bool function_is_in_stack(string func_name) {
     
     // XXX: Might need to slice stack.
@@ -215,10 +224,6 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
     }
     return false;
   }
-  
-
-
-
 }
 
 /**
@@ -226,12 +231,14 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
  */
 public class XdebugTools.FunctionCall : GLib.Object {
   public string name;
-  public int time;
+  
+  public double time;
+  public double nested_time;
+  
   public int memory;
-  public int nested_time;
   public int nested_memory;
   
-  public FunctionCall(string name, int time, int memory, int nested_time, int nested_memory) {
+  public FunctionCall(string name, double time, int memory, double nested_time, int nested_memory) {
     this.name = name;
     this.time = time;
     this.memory = memory;
@@ -246,9 +253,9 @@ public class XdebugTools.FunctionCall : GLib.Object {
 public class XdebugTools.FunctionReport : GLib.Object {
   public int calls = 0;
   
-  public int time_inclusive = 0;
-  public int time_own = 0;
-  public int time_children = 0;
+  public double time_inclusive = 0;
+  public double time_own = 0;
+  public double time_children = 0;
   
   public int memory_inclusive = 0;
   public int memory_own = 0;
