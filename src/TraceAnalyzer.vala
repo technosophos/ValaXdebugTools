@@ -171,7 +171,7 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
     // Leaving function
     else if (parts[2] == "1") {
       
-      //stdout.printf("< %d\n", depth);
+      if (this.verbose) stdout.printf("< %d\n", depth);
       
       // We retrieve the already-set stack item.
       var stack_item = this.stack.get(depth);
@@ -186,11 +186,11 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
       
       var new_stack_item = new FunctionCall(stack_item.name, dtime, dmem, stack_item.nested_time, stack_item.nested_memory);
       
-      this.add_to_function(new_stack_item);
+      this.add_to_function(new_stack_item, depth);
     }
   }
   
-  protected void add_to_function(FunctionCall func) {
+  protected void add_to_function(FunctionCall func, int depth) {
     
     FunctionReport report;
     if (!this.functions.has_key(func.name)) {
@@ -205,22 +205,24 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
     report.calls++;
     
     // Add data.
-    if (this.function_is_in_stack(func.name)) {
-      report.time_inclusive = func.time;
-      report.time_children = func.nested_time;
+    if (!this.function_is_in_stack(func.name, depth)) {
+      report.time_inclusive += func.time;
+      report.time_children += func.nested_time;
       
-      report.memory_inclusive = func.memory;
-      report.memory_children = func.nested_memory;
+      report.memory_inclusive += func.memory;
+      report.memory_children += func.nested_memory;
     }
   }
   
-  protected bool function_is_in_stack(string func_name) {
+  protected bool function_is_in_stack(string func_name, int depth) {
     
     // XXX: Might need to slice stack.
     int count = 0;
-    int stack_size = this.stack.size;
-    foreach (var stack_item in this.stack) {
-      if (++count < stack_size && stack_item.name == func_name) return true;
+    //int stack_size = depth; //this.stack.size;
+    foreach (var stack_item in this.stack.slice(0, depth)) {
+      if (/*++count < stack_size && */stack_item.name == func_name) {
+        return true;
+      }
     }
     return false;
   }
