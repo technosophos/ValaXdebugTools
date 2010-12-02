@@ -66,7 +66,7 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
             
       // Skip internal functions.
       if (suppress_internal && function.is_internal) {
-        if (this.verbose) stdout.printf("Hiding %s", function.name);
+        //if (this.verbose) stdout.printf("Hiding %s\n", function.name);
         continue;
       }
 
@@ -184,11 +184,10 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
         stack_item.is_internal = true;
       }
       
-      stdout.printf("File: %s (%s), line %d\n", filename, include_string, line_number);
-      
-      //
       if (this.verbose) {
         stdout.printf("> %d %s (%0.8f, %d)\n", depth, func_name, time, memory);
+        if (int_func == "1")
+          stdout.printf("  Defined in %s:%d\n", filename, line_number);
       }
       
       
