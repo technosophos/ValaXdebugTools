@@ -25,9 +25,9 @@ Func                                                                           C
         sep,
         "'%s'".printf(report.name),
         report.calls.to_string(),
-        report.time_inclusive.to_string(),
+        "%0.6f".printf(report.time_inclusive),
         report.memory_inclusive.to_string(),
-        report.time_own.to_string(),
+        "%0.6f".printf(report.time_own),
         report.memory_own.to_string()
       );
       
