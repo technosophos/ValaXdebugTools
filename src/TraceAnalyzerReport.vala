@@ -3,10 +3,10 @@ using Gee;
 public class XdebugTools.TraceAnalyzerReport : GLib.Object {
   
   protected ArrayList<XdebugTools.FunctionReport> functions;
-  protected string format = "%s%s%8d  %0.4f  %16d  %0.4f  %16d\n";
+  protected string format = "%-80s%-8d  %0.4f  %-16d  %0.4f  %-16d\n";
   protected string header = """
-                                                                                            Inclusive:                     Own:
-Func                                                                           Calls        Time (i)        Mem (i)        Time (o)        Mem (o)
+                                                                                        Inclusive:                  Own:
+Func                                                                            Calls   Time (i)    Mem (i)         Time (o)    Mem (o)
 ==================================================================================================================================================
 """;
   
@@ -23,7 +23,7 @@ Func                                                                           C
     foreach (var report in this.functions) {
       string buffer = string.join(
         sep,
-        "'%s'".printf(report.name),
+        "'%80s'".printf(report.name),
         report.calls.to_string(),
         "%0.6f".printf(report.time_inclusive),
         report.memory_inclusive.to_string(),
@@ -47,12 +47,11 @@ Func                                                                           C
         return;
       }
       //stdout.printf(this.format_message(report, 100));
-      string spacer = string.nfill(80 - report.name.length, ' ');
+      //string spacer = string.nfill(80 - report.name.length, ' ');
 
       stdout.printf(
         this.format,
         report.name,
-        spacer,
         report.calls,
         report.time_inclusive,
         report.memory_inclusive,
