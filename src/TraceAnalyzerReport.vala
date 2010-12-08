@@ -3,11 +3,11 @@ using Gee;
 public class XdebugTools.TraceAnalyzerReport : GLib.Object {
   
   protected ArrayList<XdebugTools.FunctionReport> functions;
-  protected string format = "%-80s%-8d  %0.4f  %-16d  %0.4f  %-16d\n";
+  protected string format = "%-60s%-8d  %0.4f  %-16d  %0.4f  %-16d\n";
   protected string header = """
-                                                                                        Inclusive:                  Own:
-Func                                                                            Calls   Time (i)    Mem (i)         Time (o)    Mem (o)
-==================================================================================================================================================
+                                                                    Inclusive:                  Own:
+Func                                                        Calls   Time (i)    Mem (i)         Time (o)    Mem (o)
+==============================================================================================================================
 """;
   
   public TraceAnalyzerReport(ArrayList<XdebugTools.FunctionReport> functions) {
