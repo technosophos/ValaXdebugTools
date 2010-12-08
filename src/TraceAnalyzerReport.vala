@@ -9,7 +9,6 @@ public class XdebugTools.TraceAnalyzerReport : GLib.Object {
 Func                                                        Calls   Time (i)    Mem (i)         Time (o)    Mem (o)
 ==============================================================================================================================
 """;
-
   
   public TraceAnalyzerReport(ArrayList<XdebugTools.FunctionReport> functions) {
     this.functions = functions;

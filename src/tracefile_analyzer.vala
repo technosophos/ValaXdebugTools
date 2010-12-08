@@ -74,6 +74,7 @@ public class XdebugTools.TracefileAnalyzer : GLib.Object {
       //tracer.suppress_internals = true;
     }
     
+    // Do the actual parsing of the file.
     try {
       parser.parse();
     } catch (Error e) {
