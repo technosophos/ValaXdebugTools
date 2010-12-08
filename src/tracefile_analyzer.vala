@@ -24,7 +24,7 @@ public class XdebugTools.TracefileAnalyzer : GLib.Object {
     { "verbose", 'v', 0, OptionArg.NONE, out verbose, "Turn on verbose output.", null },
     { null }
   };
-  
+    
   /**
    * Main entry point.
    */
@@ -54,23 +54,28 @@ public class XdebugTools.TracefileAnalyzer : GLib.Object {
       stdout.printf("FATAL ERROR: File %s does not exist.\n", file_name);
       return 1;
     }
-    
+        
     // Do a little scanning of the input params.
     string sort = sort_col == null ? "calls" : sort_col;
     int max = max_lines;
     
-    // Create a new tracer.
-    var tracer = new TraceAnalyzer(f, sort, max);
+    // Create a new parser and tracer. Register the tracer.
+    var parser = new TraceParser(f);
+    var tracer = new TraceAnalyzer(sort, max);
+    parser.register(tracer);
+    
     if (TracefileAnalyzer.verbose) {
+      parser.verbose = true;
       tracer.verbose = true;
     }
+    
     if (no_internals) {
       stdout.printf("No internals");
       //tracer.suppress_internals = true;
     }
     
     try {
-      tracer.parse_file();
+      parser.parse();
     } catch (Error e) {
       stderr.printf("%s", e.message);
       return 1;

@@ -3,7 +3,7 @@ using Gee;
 /**
  * Trace analyzer parses Xdebug trace files and produces a report.
  */
-public class XdebugTools.TraceAnalyzer : GLib.Object {
+public class XdebugTools.TraceAnalyzer : XdebugTools.TraceObserver {
 
   protected int max;
   protected string sort;
@@ -22,36 +22,12 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
     set {this._verbose = value; }
   }
   
-  /**
-   * 
-   */
-  public TraceAnalyzer(File file, string sort, int max) {
-    this.file = file;
-    //this.sort = sort;
-    //this.max = max;
-    
+  public TraceAnalyzer(string sort, int max) {
     this.stack = new ArrayList<FunctionCall>();
     this.functions = new HashMap<string, FunctionReport>();
-  }
-  
-  /**
-   * Parse the file.
-   */
-  public void parse_file() throws Error {
-    string line;
     
-    if (this.verbose) {
-      stdout.printf("Parsing file...\n\n");
-    }
-    
-    // Add the wrapper.
     var stack_item = new FunctionCall("<start>", 0, 0, 0, 0);
     this.stack.add(stack_item);
-    
-    var input = new DataInputStream(this.file.read());
-    while ((line = input.read_line(null)) != null) {
-      this.parse_line(line);
-    }
   }
   
   /**
@@ -76,17 +52,60 @@ public class XdebugTools.TraceAnalyzer : GLib.Object {
     }
     
     // Sort the list if a sorter is set.
-    CompareDataFunc comparator = this.createComparator(sort);
+    CompareDataFunc comparator = this.create_comparator(sort);
     
     sortable_list.sort_with_data(comparator);
         
     return sortable_list;
   }
   
+  // Inherit docs.
+  public override void enter_function(int depth, int func_id, double time, int memory, string name, bool is_internal, string filename, int line, string? extra = null){
+    var stack_item = new FunctionCall(name, time, memory, 0, 0);
+    
+    stack_item.is_internal = is_internal;
+    
+    if (this.verbose) {
+      stdout.printf("> %d %s (%0.8f, %d)\n", depth, name, time, memory);
+      if (!is_internal)
+        stdout.printf("  Defined in %s:%d\n", filename, line);
+    }
+    
+    
+    if (this.stack.size >= depth + 1) {
+      this.stack.set(depth, stack_item);
+    }
+    else {
+      this.stack.add(stack_item);
+    }
+  }
+  
+  // Inherit docs.
+  public override void exit_function(int depth, int func_id, double time, int memory){
+    if (this.verbose) stdout.printf("< %d\n", depth);
+    
+    // We retrieve the already-set stack item.
+    var stack_item = this.stack.get(depth);
+    var parent_item = this.stack.get(depth -1);
+    
+    // Adjust time and memory.
+    var dtime = time - stack_item.time;
+    var dmem = memory - stack_item.memory;
+    
+    parent_item.nested_time += dtime;
+    parent_item.nested_memory += dmem;
+    
+    var new_stack_item = new FunctionCall(stack_item.name, dtime, dmem, stack_item.nested_time, stack_item.nested_memory);
+    new_stack_item.is_internal = stack_item.is_internal;
+    
+    this.add_to_function(new_stack_item, depth);
+    
+  }
+  
   /**
    * Create a comparison function.
    */
-  protected CompareDataFunc createComparator(string sort) {
+  protected CompareDataFunc create_comparator(string sort) {
     CompareDataFunc comparator;
     
     if (this.verbose) stdout.printf("Sorting with %s\n", sort);
