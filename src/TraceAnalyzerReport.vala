@@ -16,19 +16,25 @@ Func                                                        Calls   Time (i)    
   
   public void write_csv_report(string sep = ",", bool print_header = true) {
     if (print_header) {
-      stdout.printf("function,calls,time_inclusive,memory_inclusive,time_own,memory_own\n");
+      stdout.printf("function,calls,time_inclusive,memory_inclusive,time_own,memory_own,time_own_min,time_own_max,time_own_avg,memory_own_min,memory_own_max,memory_own_avg\n");
     }
     
     
     foreach (var report in this.functions) {
       string buffer = string.join(
         sep,
-        "'%80s'".printf(report.name),
+        report.name, //"'%s'".printf(report.name),
         report.calls.to_string(),
         "%0.6f".printf(report.time_inclusive),
         report.memory_inclusive.to_string(),
         "%0.6f".printf(report.time_own),
-        report.memory_own.to_string()
+        report.memory_own.to_string(),
+        "%0.6f".printf(report.time_least),
+        "%0.6f".printf(report.time_most),
+        "%0.6f".printf(report.time_avg),
+        report.memory_least.to_string(),
+        report.memory_most.to_string(),
+        report.memory_avg.to_string()        
       );
       
       stdout.printf("%s\n",buffer);

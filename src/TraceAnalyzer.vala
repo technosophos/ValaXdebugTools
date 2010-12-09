@@ -8,7 +8,6 @@ public class XdebugTools.TraceAnalyzer : XdebugTools.TraceObserver {
   protected int max;
   protected string sort;
   protected File file;
-  //protected string[][];
   protected ArrayList<FunctionCall> stack;
   protected HashMap<string, FunctionReport> functions;
   
