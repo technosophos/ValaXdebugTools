@@ -20,7 +20,7 @@ public class XdebugTools.TracefileAnalyzer : GLib.Object {
     { "csv-separator", 0, 0, OptionArg.STRING, out csv_separator, "Use this string as a separator.", "','" },
     { "max-lines", 'n', 0, OptionArg.INT, out max_lines, "Set the max number (N) of lines to print.", "N"},
     { "no-internals", 0, 0, OptionArg.NONE, out no_internals, "Do not display stats for internal functions. Only user-defined functions will be shown.", null},
-    { "sort", 's', 0, OptionArg.STRING, out sort_col, "Name of the column to sort on.", "calls | time_own | memory_own | time_inclusive | memory_inclusive"},
+    { "sort", 's', 0, OptionArg.STRING, out sort_col, "Name of the column to sort on.", "calls|time_own|time_inclusive|time_min|time_max|time_avg|memory_own|memory_inclusive|memory_min|memory_max|memory_avg"},
     { "verbose", 'v', 0, OptionArg.NONE, out verbose, "Turn on verbose output.", null },
     { null }
   };

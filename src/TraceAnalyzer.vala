@@ -48,6 +48,11 @@ public class XdebugTools.TraceAnalyzer : XdebugTools.TraceObserver {
 
       function.memory_own = function.memory_inclusive - function.memory_children;
       function.time_own = function.time_inclusive - function.time_children;
+      
+      // Calculate averages
+      function.memory_avg = function.memory_own / function.calls;
+      function.time_avg = function.time_own / function.calls;
+      
       sortable_list.add(function);
     }
     
@@ -129,6 +134,30 @@ public class XdebugTools.TraceAnalyzer : XdebugTools.TraceObserver {
           return b.time_inclusive < a.time_inclusive ? -1 : 0;
         };
         break;
+      case "time_min":
+        comparator = (raw_a, raw_b) => {
+          FunctionReport a = (FunctionReport)raw_a;
+          FunctionReport b = (FunctionReport)raw_b;
+          if (a.time_least < b.time_least) return 1;
+          return b.time_least < a.time_least ? -1 : 0;
+        };
+        break;
+      case "time_avg":
+        comparator = (raw_a, raw_b) => {
+          FunctionReport a = (FunctionReport)raw_a;
+          FunctionReport b = (FunctionReport)raw_b;
+          if (a.time_avg < b.time_avg) return 1;
+          return b.time_avg < a.time_avg ? -1 : 0;
+        };
+        break;
+      case "time_max":
+        comparator = (raw_a, raw_b) => {
+          FunctionReport a = (FunctionReport)raw_a;
+          FunctionReport b = (FunctionReport)raw_b;
+          if (a.time_most < b.time_most) return 1;
+          return b.time_most < a.time_most ? -1 : 0;
+        };
+        break;
       case "memory_own":
         comparator = (raw_a, raw_b) => {
           FunctionReport a = (FunctionReport)raw_a;
@@ -145,7 +174,30 @@ public class XdebugTools.TraceAnalyzer : XdebugTools.TraceObserver {
           return b.memory_inclusive < a.memory_inclusive ? -1 : 0;
         };
         break;
-    
+      case "memory_min":
+        comparator = (raw_a, raw_b) => {
+          FunctionReport a = (FunctionReport)raw_a;
+          FunctionReport b = (FunctionReport)raw_b;
+          if (a.memory_least < b.memory_least) return 1;
+          return b.memory_least < a.memory_least ? -1 : 0;
+        };
+        break;
+      case "memory_avg":
+        comparator = (raw_a, raw_b) => {
+          FunctionReport a = (FunctionReport)raw_a;
+          FunctionReport b = (FunctionReport)raw_b;
+          if (a.memory_avg < b.memory_avg) return 1;
+          return b.memory_avg < a.memory_avg ? -1 : 0;
+        };
+        break;
+      case "memory_max":
+        comparator = (raw_a, raw_b) => {
+          FunctionReport a = (FunctionReport)raw_a;
+          FunctionReport b = (FunctionReport)raw_b;
+          if (a.memory_most < b.memory_most) return 1;
+          return b.memory_most < a.memory_most ? -1 : 0;
+        };
+        break;
       case "calls":
       default:
         comparator = (raw_a, raw_b) => {
@@ -181,8 +233,16 @@ public class XdebugTools.TraceAnalyzer : XdebugTools.TraceObserver {
       report.time_inclusive += func.time;
       report.time_children += func.nested_time;
       
+      double time_this_call = func.time - func.nested_time;
+      if ( time_this_call < report.time_least) report.time_least = time_this_call;
+      if ( time_this_call > report.time_most) report.time_most = time_this_call;
+      
       report.memory_inclusive += func.memory;
       report.memory_children += func.nested_memory;
+      
+      int memory_this_call = func.memory - func.nested_memory;
+      if ( memory_this_call < report.memory_least) report.memory_least = memory_this_call;
+      if ( memory_this_call > report.memory_most) report.memory_most = memory_this_call;
     }
   }
   
@@ -234,9 +294,17 @@ public class XdebugTools.FunctionReport : GLib.Object {
   public double time_own = 0;
   public double time_children = 0;
   
+  public double time_least = 9999;
+  public double time_most = 0;
+  public double time_avg = 0;
+  
   public int memory_inclusive = 0;
   public int memory_own = 0;
   public int memory_children = 0;
+  
+  public int memory_least = 67108864;
+  public int memory_most = 0;
+  public int memory_avg;
   
   public string name;
   

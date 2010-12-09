@@ -3,11 +3,11 @@ using Gee;
 public class XdebugTools.TraceAnalyzerReport : GLib.Object {
   
   protected ArrayList<XdebugTools.FunctionReport> functions;
-  protected string format = "%-60s%-8d  %0.4f  %-16d  %0.4f  %-16d\n";
+  protected string format = "%-60s%-8d  %0.4f  %-16d  %0.4f  %-16d %0.4f %0.4f %0.4f %-16d %-16d %-16d\n";
   protected string header = """
-                                                                    Inclusive:                  Own:
-Func                                                        Calls   Time (i)    Mem (i)         Time (o)    Mem (o)
-==============================================================================================================================
+                                                                    Inclusive:                  Own:                     Time Own:             Memory Own:
+Func                                                        Calls   Time (i)    Mem (i)         Time (o)    Mem (o)      Min    Max    Avg     Min             Max             Avg
+==================================================================================================================================================================================
 """;
   
   public TraceAnalyzerReport(ArrayList<XdebugTools.FunctionReport> functions) {
@@ -56,7 +56,13 @@ Func                                                        Calls   Time (i)    
         report.time_inclusive,
         report.memory_inclusive,
         report.time_own,
-        report.memory_own
+        report.memory_own,
+        report.time_least,
+        report.time_most,
+        report.time_avg,
+        report.memory_least,
+        report.memory_most,
+        report.memory_avg
         );
     }
   }
