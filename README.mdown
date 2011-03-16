@@ -72,7 +72,7 @@ Why was this tool written in Vala instead of PHP? There are two reasons:
 
 ## Acknowledgements
 
-This is based on Derick Retham's original PHP analyzer script.
+Thanks to Derick Rethans, who [posted a simple PHP tool](http://derickrethans.nl/xdebug-and-tracing-memory-usage.html) for parsing Xdebug trace files.
 
 ## Platforms 
 
