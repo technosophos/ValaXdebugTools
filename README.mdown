@@ -63,6 +63,20 @@ Included in this tool is a straightforward library for building your own tracefi
 3. Register your observer (e.g. `trace_parser.register(my_trace_observer)`)
 4. Parse the file (e.g. `trace_parser.parse()`)
 
+### Why Vala?
+
+Why was this tool written in Vala instead of PHP? There are two reasons:
+
+    1. Vala is compiled to a native executable, and is thus substantially faster than its PHP equivalent. This is important when trace files start to get huge.
+    2. I think Vala is a fantastic language, and thus have used it here.
+
 ## Acknowledgements
 
 This is based on Derick Retham's original PHP analyzer script.
+
+## Platforms 
+
+This script was written and originally tested on Mac OS X using the [homebrew](https://github.com/mxcl/homebrew) package of Vala and Gee. It was written in TextMate using 
+the [Vala bundle](https://github.com/technosophos/Vala-TMBundle). Subsequently, this has been tested on Debian GNU/Linux.
+
+There is no reason why this shouldn't compile and execute on any system that supports Vala.
