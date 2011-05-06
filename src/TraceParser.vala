@@ -98,11 +98,11 @@ namespace XdebugTools {
       // 8: source file path
       // 9: line number of definition
 
-      int depth = parts[0].to_int();
-      int func_id = parts[1].to_int();
+      int depth = int.parse(parts[0]);//parts[0].to_int();
+      int func_id = int.parse(parts[1]); //.to_int();
       //int type = parts[2].to_int();
-      double time = parts[3].to_double();
-      int memory = parts[4].to_int();
+      double time = double.parse(parts[3]); //.to_double();
+      int memory = int.parse(parts[4]); //.to_int();
 
       // Entering function
       if (parts[2] == "0") {
@@ -110,7 +110,7 @@ namespace XdebugTools {
         bool int_func = parts[6] == "0";
         string extra = parts[7];
         string filename = parts[8];
-        int line_number = parts[9].to_int();
+        int line_number = int.parse(parts[9]); //.to_int();
         
         foreach (var observer in this.observers) {
           observer.enter_function(depth, func_id, time, memory, func_name, int_func, filename, line_number, extra);
