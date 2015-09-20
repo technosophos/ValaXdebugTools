@@ -58,7 +58,8 @@ public class XdebugTools.TraceAnalyzer : XdebugTools.TraceObserver {
     // Sort the list if a sorter is set.
     CompareDataFunc comparator = this.create_comparator(sort);
     
-    sortable_list.sort_with_data(comparator);
+    //sortable_list.sort_with_data(comparator);
+    sortable_list.sort(comparator);
         
     return sortable_list;
   }
