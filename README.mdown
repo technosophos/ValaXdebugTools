@@ -14,11 +14,17 @@ Install the Vala environment. (On Mac OS X, `brew install vala libgee`)
 
 Compile:
 
+```
     valac --pkg gio-2.0 --pkg gee-0.8 src/*.vala -o trace_analyzer
+```
+
+(Or just `make build`)
 
 Run:
 
+```
     ./trace_analyzer some_trace_file.xt
+```
 
 ## Usage
 
@@ -61,8 +67,11 @@ function exit, essentially creating a negative memory usage number.
 
 Example `php.ini` config for Xdebug:
 
+```ini
     xdebug.auto_trace = 1 xdebug.trace_format = 1
-xdebug.trace_output_name = php-trace.%t
+
+    xdebug.trace_output_name = php-trace.%t
+```
 
 The second one is the most important: Set the tracing format to 1.
 
@@ -81,9 +90,7 @@ tracefile analyzers. In a nutshell, here's how you do it:
 
 Why was this tool written in Vala instead of PHP? There are two reasons:
 
-    1. Vala is compiled to a native executable, and is thus
-substantially faster than its PHP equivalent. This is important when
-trace files start to get huge.
+    1. Vala is compiled to a native executable, and is thus substantially faster than its PHP equivalent. This is important when trace files start to get huge.
     2. I think Vala is a fantastic language, and thus have used it here.
 
 ## Acknowledgements
